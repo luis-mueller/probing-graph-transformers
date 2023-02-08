@@ -52,7 +52,7 @@ The experimets are performed on three tasks, `Edges`, `Triangles`, `CSL`. In add
 Similar to the structural awareness experiments, we prepared config files to reproduce the experiments on heterophilic datasets under `configs/GPS` and `configs/Graphormer` for Transformer with positional/structural encodigns and optional message-passing and Graphormer, respectively.
 
 ### Reduced Over-squashing in GTs?
-To reproduce our results on the `NeighborsMatch` dataset, visit our dedicated fork at [](), which we set up to stay as close as possible to the original implementation in [Alon and Yahav, 2021](https://arxiv.org/abs/2006.05205).
+To reproduce our results on the `NeighborsMatch` dataset, visit our dedicated fork at [https://github.com/luis-mueller/bottleneck](https://github.com/luis-mueller/bottleneck), which we set up to stay as close as possible to the original implementation in [Alon and Yahav, 2021](https://arxiv.org/abs/2006.05205).
 
 
 ## Unit tests
@@ -70,10 +70,16 @@ python -m unittest -v unittests.test_eigvecs
 ```
 
 ## Citation
-
 If you find this work useful, please cite 
 
-> Todo
+```bibtex
+@article{mueller2023attending,
+  title={{Attending to Graph Transformers}}, 
+  author={Luis Müller and Christopher Morris and Mikhail Galkin and Ladislav Ramp\'{a}\v{s}ek},
+  journal={Arxiv preprint},
+  year={2023}
+}
+```
 
 and the GraphGPS paper:
 ```bibtex
