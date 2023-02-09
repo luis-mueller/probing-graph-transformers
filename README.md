@@ -1,6 +1,6 @@
 # Attending to Graph Transformers
 
-Code for our paper [Attending to Graph Transformers](). We base our implementation on the [GraphGPS](https://github.com/rampasek/GraphGPS) repository.
+Code for our paper [Attending to Graph Transformers](https://arxiv.org/abs/2302.04181). We base our implementation on the [GraphGPS](https://github.com/rampasek/GraphGPS) repository.
 GraphGPS is built using [PyG](https://www.pyg.org/) and [GraphGym from PyG2](https://pytorch-geometric.readthedocs.io/en/2.0.0/notes/graphgym.html). Specifically *PyG v2.2* is required.
 
 The paper presents three different experiments, probing...
