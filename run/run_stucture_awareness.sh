@@ -24,7 +24,7 @@ done
 for seed in 1 6 17 38 99
 do
     python main.py --cfg configs/StructuralAwareness/csl-graphormer.yaml --repeat 1 seed $seed
-    python main.py --cfg configs/StructuralAwareness/csl-tf.yaml --repeat 1 seed $seed posenc_LapPE.enable True dataset.node_encoder_name LapPE posenc_RWSE.dim_pe 64
+    python main.py --cfg configs/StructuralAwareness/csl-tf.yaml --repeat 1 seed $seed posenc_LapPE.enable True dataset.node_encoder_name LapPE posenc_LapPE.dim_pe 64
     python main.py --cfg configs/StructuralAwareness/csl-tf.yaml --repeat 1 seed $seed posenc_RWSE.enable True dataset.node_encoder_name RWSE posenc_RWSE.dim_pe 64
     python main.py --cfg configs/StructuralAwareness/csl-tf.yaml --repeat 1 seed $seed
     python main.py --cfg configs/StructuralAwareness/csl-gin.yaml --repeat 1 seed $seed
