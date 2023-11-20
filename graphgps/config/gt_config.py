@@ -48,6 +48,8 @@ def set_cfg_gt(cfg):
 
     cfg.gt.residual = True
 
+    cfg.gt.hidden_dim_multiplier = 2
+
     # BigBird model/GPS-BigBird layer.
     cfg.gt.bigbird = CN()
 

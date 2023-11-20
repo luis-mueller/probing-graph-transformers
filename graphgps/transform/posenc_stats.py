@@ -8,7 +8,7 @@ from torch_geometric.utils import (get_laplacian, to_scipy_sparse_matrix,
                                    to_undirected, to_dense_adj, scatter)
 from torch_geometric.utils.num_nodes import maybe_num_nodes
 from graphgps.encoder.graphormer_encoder import graphormer_pre_processing
-
+import os
 
 def compute_posenc_stats(data, pe_types, is_undirected, cfg):
     """Precompute positional encodings for the given graph.
@@ -53,24 +53,42 @@ def compute_posenc_stats(data, pe_types, is_undirected, cfg):
     # Eigen values and vectors.
     evals, evects = None, None
     if 'LapPE' in pe_types or 'EquivStableLapPE' in pe_types:
-        # Eigen-decomposition with numpy, can be reused for Heat kernels.
-        L = to_scipy_sparse_matrix(
-            *get_laplacian(undir_edge_index, normalization=laplacian_norm_type,
-                           num_nodes=N)
-        )
-        evals, evects = np.linalg.eigh(L.toarray())
-        
-        if 'LapPE' in pe_types:
-            max_freqs=cfg.posenc_LapPE.eigen.max_freqs
-            eigvec_norm=cfg.posenc_LapPE.eigen.eigvec_norm
-        elif 'EquivStableLapPE' in pe_types:  
-            max_freqs=cfg.posenc_EquivStableLapPE.eigen.max_freqs
-            eigvec_norm=cfg.posenc_EquivStableLapPE.eigen.eigvec_norm
-        
-        data.EigVals, data.EigVecs = get_lap_decomp_stats(
-            evals=evals, evects=evects,
-            max_freqs=max_freqs,
-            eigvec_norm=eigvec_norm)
+        require_compute = False
+
+        if cfg.dataset.store_precompute:
+            path = f"{cfg.dataset.name}_LapPE_{cfg.posenc_LapPE.eigen.max_freqs}.pt"
+            if os.path.exists(path):
+                print(f"Loading stats from {path}")
+                data.EigVals, data.EigVecs = torch.load(path)
+            else:
+                require_compute = True
+        else:
+            require_compute = True
+
+        if require_compute:
+            # Eigen-decomposition with numpy, can be reused for Heat kernels.
+            L = to_scipy_sparse_matrix(
+                *get_laplacian(undir_edge_index, normalization=laplacian_norm_type,
+                            num_nodes=N)
+            )
+            evals, evects = np.linalg.eigh(L.toarray())
+            
+            if 'LapPE' in pe_types:
+                max_freqs=cfg.posenc_LapPE.eigen.max_freqs
+                eigvec_norm=cfg.posenc_LapPE.eigen.eigvec_norm
+            elif 'EquivStableLapPE' in pe_types:  
+                max_freqs=cfg.posenc_EquivStableLapPE.eigen.max_freqs
+                eigvec_norm=cfg.posenc_EquivStableLapPE.eigen.eigvec_norm
+            
+            data.EigVals, data.EigVecs = get_lap_decomp_stats(
+                evals=evals, evects=evects,
+                max_freqs=max_freqs,
+                eigvec_norm=eigvec_norm)
+            
+        if cfg.dataset.store_precompute and require_compute:    
+            print(f"Saving stats to {path}")
+            torch.save((data.EigVals, data.EigVecs), path)
+
 
     if 'SignNet' in pe_types:
         # Eigen-decomposition with numpy for SignNet.
@@ -92,9 +110,23 @@ def compute_posenc_stats(data, pe_types, is_undirected, cfg):
         kernel_param = cfg.posenc_RWSE.kernel
         if len(kernel_param.times) == 0:
             raise ValueError("List of kernel times required for RWSE")
-        rw_landing = get_rw_landing_probs(ksteps=kernel_param.times,
-                                          edge_index=data.edge_index,
-                                          num_nodes=N)
+                    
+        if cfg.dataset.store_precompute:
+            path = f"{cfg.dataset.name}_RWSE_{len(kernel_param.times)}.pt"
+            if os.path.exists(path):
+                print(f"Loading stats from {path}")
+                rw_landing = torch.load(path)
+            else:
+                rw_landing = get_rw_landing_probs(ksteps=kernel_param.times,
+                                                edge_index=data.edge_index,
+                                                num_nodes=N)
+                print(f"Saving stats to {path}")
+                torch.save(rw_landing, path)
+        else:
+            rw_landing = get_rw_landing_probs(ksteps=kernel_param.times,
+                                                edge_index=data.edge_index,
+                                                num_nodes=N)
+
         data.pestat_RWSE = rw_landing
 
     # Heat Kernels.

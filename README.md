@@ -19,7 +19,7 @@ conda create -n graphgps python=3.10
 conda activate graphgps
 
 conda install pytorch=1.13 torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
-conda install pyg=2.2 -c pyg -c conda-forge
+conda install pyg=2.3 -c pyg -c conda-forge
 pip install pyg-lib -f https://data.pyg.org/whl/torch-1.13.0+cu117.html
 
 # RDKit is required for OGB-LSC PCQM4Mv2 and datasets derived from it.  
@@ -30,6 +30,9 @@ pip install performer-pytorch
 pip install tensorboardX
 pip install ogb
 pip install wandb
+
+# DGL - install for your environment: https://www.dgl.ai/pages/start.html, e.g.,
+conda install -c dglteam/label/cu117 dgl 
 
 conda clean --all
 ```
