@@ -1,0 +1,82 @@
+out_dir: results
+metric_best: accuracy
+wandb:
+  use: False
+  project: probing-heterophilous
+  entity: null
+dataset:
+  format: PyG-HeterophilousGraphDataset
+  name: Roman-empire
+  task: node
+  task_type: classification
+  transductive: True
+  split_mode: standard
+  node_encoder: True
+  node_encoder_name: LinearNode
+  node_encoder_bn: False
+  edge_encoder: False
+  edge_encoder_name: DummyEdge
+  edge_encoder_bn: False
+  store_precompute: True
+posenc_GraphormerBias:
+  enable: False
+  node_degrees_only: True
+  num_spatial_types: 0
+  num_in_degrees: 729
+  num_out_degrees: 700
+graphormer:
+  use_graph_token: False
+posenc_LapPE:
+  enable: False
+  eigen:
+    laplacian_norm: none
+    eigvec_norm: L2
+    max_freqs: 10
+  model: DeepSet
+  dim_pe: 32
+  layers: 2
+  n_heads: 4  # Only used when `posenc.model: Transformer`
+  raw_norm_type: none
+posenc_RWSE:
+  enable: False
+  kernel:
+    times_func: range(1,21)
+  model: Linear
+  dim_pe: 32
+  raw_norm_type: BatchNorm
+train:
+  mode: custom
+  sampler: full_batch
+#  sampler: saint_rw
+#  batch_size: 32
+  eval_period: 5
+  enable_ckpt: False
+model:
+  type: GPSModel
+  loss_fun: cross_entropy
+  edge_decoding: dot
+gt:
+  layer_type: GAT+Performer
+  layers: 1
+  n_heads: 8
+  dim_hidden: 512  # `gt.dim_hidden` must match `gnn.dim_inner`
+  dropout: 0.2
+  attn_dropout: 0.0
+  layer_norm: False
+  batch_norm: False
+  hidden_dim_multiplier: 2
+gnn:
+  head: node
+  layers_pre_mp: 0
+  layers_post_mp: 1
+  dim_inner: 512  # `gt.dim_hidden` must match `gnn.dim_inner`
+  act: gelu
+  dropout: 0.2
+  normalize_adj: False
+optim:
+  clip_grad_norm: False
+  optimizer: adamW
+  weight_decay: 0.0
+  base_lr: 3e-5
+  max_epoch: 1000
+  scheduler: null

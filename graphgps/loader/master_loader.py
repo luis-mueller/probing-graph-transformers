@@ -9,7 +9,7 @@ import torch_geometric.transforms as T
 from numpy.random import default_rng
 from ogb.graphproppred import PygGraphPropPredDataset
 from torch_geometric.datasets import (Actor, GNNBenchmarkDataset, Planetoid,
-                                      TUDataset, WebKB, WikipediaNetwork, ZINC)
+                                      TUDataset, WebKB, WikipediaNetwork, ZINC, HeterophilousGraphDataset)
 from torch_geometric.graphgym.config import cfg
 from torch_geometric.graphgym.loader import load_pyg, load_ogb, set_dataset_attr
 from torch_geometric.graphgym.register import register_loader
@@ -140,6 +140,9 @@ def load_dataset_master(format, name, dataset_dir):
         elif pyg_dataset_id == 'COCOSuperpixels':
             dataset = preformat_COCOSuperpixels(dataset_dir, name,
                                                 cfg.dataset.slic_compactness)
+            
+        elif pyg_dataset_id == "HeterophilousGraphDataset":
+            dataset = preformat_HeterophilousGraphDataset(dataset_dir, name)
 
         else:
             raise ValueError(f"Unexpected PyG Dataset identifier: {format}")
@@ -252,6 +255,20 @@ def compute_indegree_histogram(dataset):
         max_degree = max(max_degree, d.max().item())
         deg += torch.bincount(d, minlength=deg.numel())
     return deg.numpy().tolist()[:max_degree + 1]
+
+
+def preformat_HeterophilousGraphDataset(dataset_dir, name):
+    """Load and preformat datasets from PyG's HeterophilousGraphDataset.
+
+    Args:
+        dataset_dir: path where to store the cached dataset
+        name: name of the specific dataset in the HeterophilousGraphDataset class
+
+    Returns:
+        PyG dataset object
+    """
+    dataset = HeterophilousGraphDataset(root=dataset_dir, name=name)
+    return dataset
 
 
 def preformat_GNNBenchmarkDataset(dataset_dir, name):

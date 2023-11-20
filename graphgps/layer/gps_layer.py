@@ -21,7 +21,7 @@ class GPSLayer(nn.Module):
                  local_gnn_type, global_model_type, num_heads, act='relu',
                  pna_degrees=None, equivstable_pe=False, dropout=0.0,
                  attn_dropout=0.0, layer_norm=False, batch_norm=True,
-                 bigbird_cfg=None, log_attn_weights=False):
+                 bigbird_cfg=None, log_attn_weights=False, hidden_dim_multiplier=2):
         super().__init__()
 
         self.dim_h = dim_h
@@ -140,8 +140,8 @@ class GPSLayer(nn.Module):
         self.dropout_attn = nn.Dropout(dropout)
 
         # Feed Forward block.
-        self.ff_linear1 = nn.Linear(dim_h, dim_h * 2)
-        self.ff_linear2 = nn.Linear(dim_h * 2, dim_h)
+        self.ff_linear1 = nn.Linear(dim_h, dim_h * hidden_dim_multiplier)
+        self.ff_linear2 = nn.Linear(dim_h * hidden_dim_multiplier, dim_h)
         self.act_fn_ff = self.activation()
         if self.layer_norm:
             self.norm2 = pygnn.norm.LayerNorm(dim_h)

@@ -1,6 +1,6 @@
 import torch
-
-
+from torch_geometric.utils import add_remaining_self_loops, to_undirected
+import os
 def shuffle(tensor):
     idx = torch.randperm(len(tensor))
     return tensor[idx]
@@ -16,6 +16,12 @@ def task_specific_preprocessing(data, cfg):
     Returns:
         Extended PyG Data object.
     """
+    if cfg.dataset.format == "PyG-HeterophilousGraphDataset":
+        data.edge_index, _ = add_remaining_self_loops(data.edge_index)
+        data.edge_index = to_undirected(data.edge_index)
+        if cfg.gt.layer_type.split("+")[0] in ["GINE", "CustomGatedGCN"]:
+            data.edge_attr = torch.zeros(data.edge_index.size(1), cfg.gnn.dim_inner)
+
     if cfg.gnn.head == "infer_links":
         N = data.x.size(0)
         idx = torch.arange(N, dtype=torch.long)
